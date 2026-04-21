@@ -2,6 +2,20 @@
 
 /* ===== DESIGN SYSTEM — NexusAI ===== */
 
+@layer base {
+  button:not(:disabled),
+  a:not([aria-disabled="true"]):not([disabled]),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  
+  button:disabled,
+  a[aria-disabled="true"],
+  a[disabled] {
+    cursor: not-allowed;
+  }
+}
+
 :root {
   --primary: #7C3AED;
   --primary-light: #A78BFA;

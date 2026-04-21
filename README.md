@@ -1,4 +1,4 @@
-# NexusAI - SaaS Plataforma Premium 🚀
+# NexusAI - SaaS Plataforma Premium 🚀 PARA ESTUDO!!!
 
 O **NexusAI** é uma plataforma SaaS completa de Inteligência Artificial desenvolvida com as mais modernas práticas de Engenharia de Software. O projeto foi construído do zero, combinando uma interface visual Premium (UI/UX) com uma arquitetura Full-Stack robusta, segura e escalável, pronta para ambientes corporativos (Enterprise).
 
@@ -40,4 +40,4 @@ O projeto foi blindado com **medidas essenciais de segurança** que o tornam inv
 5. Acesse `http://localhost:3000`.
 
 ---
-*Projeto desenvolvido para fins de estudo e demonstração de arquitetura de software avançada.*
+*Projeto desenvolvido para fins de estudo e demonstração de arquitetura de software avançada com ia e para fins de estudo.
