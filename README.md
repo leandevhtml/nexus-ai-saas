@@ -40,4 +40,4 @@ O projeto foi blindado com **medidas essenciais de segurança** que o tornam inv
 5. Acesse `http://localhost:3000`.
 
 ---
-*Projeto desenvolvido para fins de estudo e demonstração de arquitetura de software avançada com ia e para fins de estudo.
+*Projeto desenvolvido para fins de estudo e demonstração de arquitetura de software avançada com AI.
