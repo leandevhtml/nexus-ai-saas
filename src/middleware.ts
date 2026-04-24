@@ -32,9 +32,8 @@ export function middleware(request: NextRequest) {
                             request.cookies.has('__Secure-next-auth.session-token');
                             
     if (!hasSessionToken) {
-      // Oculta a existência da rota do hacker
-      url.pathname = '/404';
-      return NextResponse.rewrite(url);
+      // Oculta a existência da rota retornando um 404 real do Next.js
+      return new NextResponse(null, { status: 404 });
     }
   }
 
