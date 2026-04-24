@@ -42,8 +42,8 @@ const defaultPlans = [
     period: "", 
     description: "Para grandes corporações com rígidas regras de compliance.",
     features: ["Deploy em Cluster Air-Gapped", "Fine-Tuning e Treinamento Customizado", "SLA de 99.9% de Uptime", "Gerente de Conta Dedicado", "Auditoria LGPD/GDPR"],
-    cta: "Falar com Vendas",
-    buttonClass: "btn-secondary text-[var(--text)] border-[var(--border)]",
+    cta: "Assinar Agora",
+    buttonClass: "btn-primary shadow-[0_0_15px_rgba(37,99,235,0.3)]",
     popular: false,
     active: true,
     iconType: "shield"
