@@ -17,7 +17,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Recursos", href: "/recursos" },
-    { name: "Preços", href: "/precos" },
+    { name: "Planos", href: "/precos" },
     { name: "Sobre", href: "/sobre" },
     { name: "Contato", href: "/contato" },
   ];

@@ -72,7 +72,7 @@ export default function PrecosClient({ plans }: { plans: PlanData[] }) {
           
           <div className="mb-4">
             <span className="text-4xl font-extrabold text-[var(--text)]">
-              {plan.price === 0 ? "Grátis" : plan.price === 1500 ? "Sob Consulta" : `R$ ${plan.price}`}
+              {plan.price === 0 ? "Grátis" : `R$ ${plan.price}`}
             </span>
             {plan.period && <span className="text-[var(--text-muted)] font-medium">{plan.period}</span>}
           </div>
