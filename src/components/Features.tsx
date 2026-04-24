@@ -87,7 +87,7 @@ export default function Features() {
 
         {/* Features grid */}
         <motion.div
-          className="grid-universal"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"

@@ -34,7 +34,7 @@ export default function Navbar() {
   if (pathname === "/login" || pathname === "/registro" || pathname.startsWith("/admin") || pathname.startsWith("/app")) return null;
 
   const navLinks = [
-    { name: "Dashboard", href: "/#hero", icon: LayoutDashboard },
+    { name: "Recursos", href: "/#features", icon: LayoutDashboard },
     { name: "Planos", href: "/precos", icon: Package },
     { name: "Sobre", href: "/#sobre", icon: Info },
     { name: "Contato", href: "/#contato", icon: Mail },
