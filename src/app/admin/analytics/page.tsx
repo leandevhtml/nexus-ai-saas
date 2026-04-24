@@ -48,7 +48,7 @@ export default function AdminAnalytics() {
       <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-900/20 p-6 rounded-2xl text-center">
         <p className="text-rose-600 dark:text-rose-400 font-bold mb-4">{error}</p>
         <button 
-          onClick={fetchAnalytics}
+          onClick={() => fetchAnalytics()}
           className="px-6 py-2 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-colors"
         >
           Tentar Novamente
@@ -94,7 +94,7 @@ export default function AdminAnalytics() {
 
           <div className="flex flex-col items-end gap-1">
             <button 
-              onClick={fetchAnalytics}
+              onClick={() => fetchAnalytics()}
               disabled={loading}
               className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm active:scale-95 disabled:opacity-50"
             >
