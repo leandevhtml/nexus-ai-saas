@@ -61,10 +61,10 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
 }
 
 body {
@@ -72,7 +72,6 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   line-height: 1.6;
-  overflow-x: hidden;
 }
 
 ::selection {

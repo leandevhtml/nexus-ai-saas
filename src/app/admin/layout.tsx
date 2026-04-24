@@ -17,7 +17,7 @@ export default async function AdminLayout({
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8FAFC] dark:bg-[#0A0A0F] transition-colors duration-300">
       <AdminSidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         <AdminMobileNav />
         <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto">
           <div className="max-w-6xl mx-auto space-y-10">
