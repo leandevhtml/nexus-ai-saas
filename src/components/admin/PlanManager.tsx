@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Edit2, Trash2, Check, Target, X, Loader2, Rocket, Zap, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createPlan, updatePlan, deletePlan, togglePlanStatus } from "@/app/admin/plans/actions";
 
 export default function PlanManager({ initialPlans }: { initialPlans: any[] }) {
+  const router = useRouter();
   const [plans, setPlans] = useState(initialPlans);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
@@ -77,45 +79,52 @@ export default function PlanManager({ initialPlans }: { initialPlans: any[] }) {
     e.preventDefault();
     setLoading(true);
     
-    // Clean up empty features
     const cleanedData = {
       ...formData,
       features: formData.features.filter(f => f.trim() !== "")
     };
 
-    let res;
-    if (editingPlan) {
-      res = await updatePlan(editingPlan._id, cleanedData);
-    } else {
-      res = await createPlan(cleanedData);
-    }
+    try {
+      let res;
+      if (editingPlan) {
+        res = await updatePlan(editingPlan._id, cleanedData);
+      } else {
+        res = await createPlan(cleanedData);
+      }
 
-    if (res.success) {
-      setIsModalOpen(false);
-      window.location.reload(); // Hard reload to get new data from server
-    } else {
-      alert("Erro ao salvar plano: " + res.error);
+      if (res.success) {
+        setIsModalOpen(false);
+        router.refresh(); // Atualiza os dados sem recarregar a página toda
+      } else {
+        alert("Erro ao salvar: " + res.error);
+      }
+    } catch (err) {
+      alert("Erro crítico ao salvar o plano");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este plano?")) return;
     
     setLoading(true);
-    const res = await deletePlan(id);
-    if (res.success) {
-      window.location.reload();
-    } else {
-      alert("Erro ao excluir: " + res.error);
+    try {
+      const res = await deletePlan(id);
+      if (res.success) {
+        router.refresh();
+      } else {
+        alert("Erro ao excluir: " + res.error);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleToggleStatus = async (id: string, current: boolean) => {
     const res = await togglePlanStatus(id, current);
     if (res.success) {
-      window.location.reload();
+      router.refresh();
     }
   };
 
