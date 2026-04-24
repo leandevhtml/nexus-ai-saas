@@ -262,6 +262,31 @@ export default function PlanManager({ initialPlans }: { initialPlans: any[] }) {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                <div>
+                  <label className="block text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2">Texto do Botão (CTA)</label>
+                  <input 
+                    type="text" 
+                    value={formData.cta}
+                    onChange={(e) => setFormData({...formData, cta: e.target.value})}
+                    className="w-full bg-white dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    placeholder="Ex: Começar Agora, Assinar"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2">Classe do Botão (CSS)</label>
+                  <input 
+                    type="text" 
+                    value={formData.buttonClass}
+                    onChange={(e) => setFormData({...formData, buttonClass: e.target.value})}
+                    className="w-full bg-white dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono text-[10px]"
+                    placeholder="Ex: btn-primary shadow-..."
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Período</label>
@@ -286,6 +311,8 @@ export default function PlanManager({ initialPlans }: { initialPlans: any[] }) {
                   </select>
                 </div>
               </div>
+
+
 
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Descrição</label>
