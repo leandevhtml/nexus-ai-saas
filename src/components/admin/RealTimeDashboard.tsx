@@ -12,23 +12,29 @@ import { cn } from "@/lib/utils";
 
 export default function RealTimeDashboard({ initialData }: { initialData: any }) {
   const [data, setData] = useState(initialData);
+  const [range, setRange] = useState("week");
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const fetchStats = async () => {
+    try {
+      setIsUpdating(true);
+      const res = await fetch(`/api/admin/stats?range=${range}`);
+      if (res.ok) {
+        const newData = await res.json();
+        setData(newData.stats);
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar dashboard:", err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch("/api/admin/stats");
-        if (res.ok) {
-          const newData = await res.json();
-          setData(newData.stats);
-        }
-      } catch (err) {
-        console.error("Erro ao atualizar dashboard:", err);
-      }
-    };
-
-    const interval = setInterval(fetchStats, 5000);
+    fetchStats();
+    const interval = setInterval(fetchStats, 10000); // 10s is better for battery/perf
     return () => clearInterval(interval);
-  }, []);
+  }, [range]);
 
   const cards = [
     { 
@@ -69,8 +75,7 @@ export default function RealTimeDashboard({ initialData }: { initialData: any })
     },
   ];
 
-  // Helper to find max for chart normalization
-  const maxWeekly = Math.max(...(data.weeklyData || [40, 65, 45, 90, 55, 75, 85]), 1);
+
 
   return (
     <div className="space-y-10">
@@ -103,34 +108,53 @@ export default function RealTimeDashboard({ initialData }: { initialData: any })
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Weekly Growth Chart */}
         <div className="lg:col-span-2 bg-white dark:bg-[#11111E] p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Crescimento Semanal</h3>
-            <div className="flex gap-2">
-              <span className="w-3 h-3 rounded-full bg-indigo-500" />
-              <span className="w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-800" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Crescimento de Leads</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Distribuição de novos cadastros por período</p>
+            </div>
+            <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+              {[
+                { label: 'Dia', val: 'day' },
+                { label: 'Semana', val: 'week' },
+                { label: 'Mês', val: 'month' },
+                { label: 'Ano', val: 'year' }
+              ].map((f) => (
+                <button
+                  key={f.val}
+                  onClick={() => setRange(f.val)}
+                  className={cn(
+                    "px-4 py-1.5 text-xs font-bold rounded-lg transition-all",
+                    range === f.val 
+                      ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm" 
+                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
             </div>
           </div>
           
           <div className="h-[350px] w-full flex flex-col justify-end gap-4">
-            <div className="flex items-end justify-between h-full px-4 gap-2">
-              {(data.weeklyData || [0, 0, 0, 0, 0, 0, 0]).map((val: number, i: number) => {
-                // Normalize height based on maxWeekly
-                const heightPercent = (val / maxWeekly) * 90; // max 90% for top padding
+            <div className="flex items-end justify-between h-full px-4 gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {(data.growthData || []).map((item: any, i: number) => {
+                const heightPercent = (item.count / Math.max(...data.growthData.map((d: any) => d.count), 1)) * 90;
                 return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-3 group/bar">
+                  <div key={i} className="flex-1 min-w-[20px] flex flex-col items-center gap-3 group/bar">
                     <div 
                       className="w-full max-w-[40px] bg-indigo-500/20 group-hover/bar:bg-indigo-500/40 rounded-t-xl transition-all duration-500 relative"
                       style={{ height: `${Math.max(heightPercent, 5)}%` }}
                     >
-                      {val > 0 && (
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity">
-                          {val}
+                      {item.count > 0 && (
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20">
+                          {item.count}
                         </div>
                       )}
                       <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 rounded-t-full shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase">
-                      {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][i]}
+                      {item.label}
                     </span>
                   </div>
                 );

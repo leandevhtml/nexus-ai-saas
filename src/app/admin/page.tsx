@@ -12,21 +12,25 @@ async function getStats() {
   
   const conversionRate = totalLeads > 0 ? ((totalLeads / (totalLeads + 100)) * 100).toFixed(1) : 0;
 
-  // Initial growth data
-  const today = new Date();
-  const lastWeek = new Date(today);
-  lastWeek.setDate(today.getDate() - 7);
-  lastWeek.setHours(0, 0, 0, 0);
+  // Initial growth data (Week by default)
+  const now = new Date();
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - 7);
+  startDate.setHours(0, 0, 0, 0);
   
-  const weeklyLeads = await Lead.aggregate([
-    { $match: { data_de_inscricao: { $gte: lastWeek } } },
+  const growthLeads = await Lead.aggregate([
+    { $match: { data_de_inscricao: { $gte: startDate } } },
     { $group: { _id: { $dayOfWeek: "$data_de_inscricao" }, count: { $sum: 1 } } }
   ]);
 
-  const dayOrder = [2, 3, 4, 5, 6, 7, 1];
-  const weeklyData = dayOrder.map(day => {
-    const found = weeklyLeads.find(l => l._id === day);
-    return found ? found.count : 0;
+  const dayOrder = [1, 2, 3, 4, 5, 6, 7];
+  const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const growthData = dayOrder.map((day, i) => {
+    const found = growthLeads.find(l => l._id === day);
+    return {
+      label: labels[i],
+      count: found ? found.count : 0
+    };
   });
 
   // Initial origin data
@@ -46,7 +50,7 @@ async function getStats() {
     totalUsers,
     proUsers,
     conversionRate,
-    weeklyData,
+    growthData,
     origins
   };
 }

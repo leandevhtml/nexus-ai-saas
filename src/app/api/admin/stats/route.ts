@@ -5,11 +5,12 @@ import User from "@/models/User";
 import Lead from "@/models/Lead";
 import { auth } from "@/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const range = searchParams.get("range") || "week"; // day, week, month, year
+
     const session = await auth();
-    
-    // Proteção: Apenas admins podem ver os stats em tempo real
     if (!session || (session.user as any)?.role !== "admin") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
@@ -21,12 +22,12 @@ export async function GET() {
     
     const totalRevenue = await Payment.aggregate([
       { $match: { status: "completed" } },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
+      { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
     ]);
 
     const pendingRevenue = await Payment.aggregate([
       { $match: { status: "pending" } },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
+      { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
     ]);
 
     // 2. Métricas de Usuários e Leads
@@ -35,31 +36,73 @@ export async function GET() {
     const proUsers = await User.countDocuments({ "subscription.plan": { $regex: /pro/i } });
     const activeSubscriptions = await User.countDocuments({ "subscription.status": "active" });
 
-    // 3. Dados para os Gráficos
-    // Crescimento semanal (últimos 7 dias, começando de segunda)
-    const today = new Date();
-    const lastWeek = new Date(today);
-    lastWeek.setDate(today.getDate() - 7);
-    lastWeek.setHours(0, 0, 0, 0);
-    
-    const weeklyLeads = await Lead.aggregate([
-      { $match: { data_de_inscricao: { $gte: lastWeek } } },
+    // 3. Dados de Crescimento (Filtrados por Range)
+    const now = new Date();
+    let startDate = new Date(now);
+    let groupBy: any = { $dayOfWeek: "$createdAt" };
+    let labels: string[] = [];
+    let dayOrder: number[] = [];
+
+    if (range === "day") {
+      startDate.setHours(0, 0, 0, 0);
+      groupBy = { $hour: "$createdAt" };
+      labels = Array.from({ length: 24 }, (_, i) => `${i}h`);
+      dayOrder = Array.from({ length: 24 }, (_, i) => i);
+    } else if (range === "week") {
+      startDate.setDate(now.getDate() - 7);
+      startDate.setHours(0, 0, 0, 0);
+      groupBy = { $dayOfWeek: "$createdAt" };
+      labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      dayOrder = [1, 2, 3, 4, 5, 6, 7];
+    } else if (range === "month") {
+      startDate.setMonth(now.getMonth() - 1);
+      startDate.setHours(0, 0, 0, 0);
+      groupBy = { $dayOfMonth: "$createdAt" };
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
+      dayOrder = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    } else if (range === "year") {
+      startDate.setFullYear(now.getFullYear() - 1);
+      startDate.setHours(0, 0, 0, 0);
+      groupBy = { $month: "$createdAt" };
+      labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      dayOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    }
+
+    // Growth for Leads (using data_de_inscricao)
+    const growthLeads = await Lead.aggregate([
+      { $match: { data_de_inscricao: { $gte: startDate } } },
       { $group: { 
-          _id: { $dayOfWeek: "$data_de_inscricao" }, 
+          _id: range === "day" ? { $hour: "$data_de_inscricao" } : 
+               range === "week" ? { $dayOfWeek: "$data_de_inscricao" } :
+               range === "month" ? { $dayOfMonth: "$data_de_inscricao" } :
+               { $month: "$data_de_inscricao" }, 
           count: { $sum: 1 } 
         } 
       }
     ]);
 
-    // Mapeamento: MongoDB 1(Dom) -> 7(Sáb)
-    // Queremos: [Seg(2), Ter(3), Qua(4), Qui(5), Sex(6), Sáb(7), Dom(1)]
-    const dayOrder = [2, 3, 4, 5, 6, 7, 1];
-    const weeklyData = dayOrder.map(day => {
-      const found = weeklyLeads.find(l => l._id === day);
-      return found ? found.count : 0;
+    // Growth for Revenue (using Payment createdAt)
+    const growthRevenue = await Payment.aggregate([
+      { $match: { status: "completed", createdAt: { $gte: startDate } } },
+      { $group: { 
+          _id: groupBy, 
+          total: { $sum: "$amount" } 
+        } 
+      }
+    ]);
+
+    const growthData = dayOrder.map((id, index) => {
+      const foundLead = growthLeads.find(l => l._id === id);
+      const foundRevenue = growthRevenue.find(r => r._id === id);
+      return {
+        label: labels[index],
+        count: foundLead ? foundLead.count : 0,
+        revenue: foundRevenue ? foundRevenue.total : 0
+      };
     });
 
-    // Conversão por Origem
+    // 4. Conversão por Origem
     const originStats = await Lead.aggregate([
       { $group: { _id: "$origem_da_campanha", count: { $sum: 1 } } }
     ]);
@@ -75,7 +118,9 @@ export async function GET() {
       payments: {
         list: payments,
         totalRevenue: totalRevenue[0]?.total || 0,
+        completedCount: totalRevenue[0]?.count || 0,
         pendingRevenue: pendingRevenue[0]?.total || 0,
+        pendingCount: pendingRevenue[0]?.count || 0,
         activeSubscriptions
       },
       stats: {
@@ -83,7 +128,7 @@ export async function GET() {
         totalUsers,
         proUsers,
         conversionRate: totalLeads > 0 ? ((totalLeads / (totalLeads + 100)) * 100).toFixed(1) : 0,
-        weeklyData,
+        growthData,
         origins
       }
     });
