@@ -51,7 +51,7 @@ export default function PrecosClient({ plans }: { plans: PlanData[] }) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    <div className="grid-universal">
       {plans.map((plan, idx) => (
         <div 
           key={plan._id || idx} 

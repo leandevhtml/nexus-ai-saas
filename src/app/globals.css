@@ -216,18 +216,45 @@ body {
   transform: translateY(-2px);
 }
 
-/* ===== SECTION SPACING ===== */
+/* ===== SECTION SPACING & ADAPTATION ===== */
 
 .section {
   position: relative;
-  padding: 120px 24px;
-  max-width: 1200px;
+  padding: clamp(60px, 10vw, 120px) 24px;
+  max-width: 1440px; /* Aumentado para ultra-wide */
   margin: 0 auto;
+  width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .section {
-    padding: 80px 16px;
+    padding: 80px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: 40px 16px;
+  }
+}
+
+/* Garante que imagens e elementos não vazem */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Grade Universal Auto-Ajustável */
+.grid-universal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 480px) {
+  .grid-universal {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }
 
