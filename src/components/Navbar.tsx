@@ -37,19 +37,28 @@ export default function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
           isScrolled || isMobileMenuOpen 
-            ? "bg-white dark:bg-[#0A0A0F] border-b border-slate-200 dark:border-slate-800 py-3" 
+            ? "bg-white dark:bg-[#0A0A0F] border-b border-slate-200 dark:border-slate-800 py-3 lg:bg-background/80 lg:backdrop-blur-xl lg:border-border-light" 
             : "bg-transparent py-4"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-          {/* Logo - Estilo Admin */}
+          {/* Logo Adaptável */}
           <Link href="/" className="flex items-center gap-2 group relative z-[110]">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+            {/* Ícone: Estilo Admin no Mobile, Gradiente no Desktop */}
+            <div className={cn(
+              "w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-105",
+              "bg-indigo-600 shadow-indigo-600/20 lg:bg-gradient-to-br lg:from-primary lg:to-secondary lg:shadow-primary/20"
+            )}>
               <img src="/logo.svg" alt="N" className="w-5 h-5 invert" />
             </div>
+            
             <div className="flex flex-col">
-              <span className="font-black text-lg tracking-tighter dark:text-white uppercase leading-none">Nexus<span className="text-indigo-600">AI</span></span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 hidden sm:block">Inteligência Local</span>
+              <span className="font-black text-lg tracking-tighter dark:text-white uppercase leading-none">
+                Nexus<span className="text-indigo-600 lg:text-primary-light">AI</span>
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 hidden lg:block">
+                Inteligência Local
+              </span>
             </div>
           </Link>
 
