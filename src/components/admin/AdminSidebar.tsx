@@ -29,7 +29,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-72 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0A0A0F] hidden md:flex flex-col h-screen sticky top-0 z-40 transition-all duration-300">
+    <aside className="w-72 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0A0A0F] hidden lg:flex flex-col h-screen sticky top-0 z-40 transition-all duration-300">
       <div className="p-8 flex items-center gap-4">
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
           <ShieldCheck className="w-6 h-6 text-white" />

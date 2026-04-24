@@ -36,7 +36,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -51,7 +51,7 @@ export default function Navbar() {
         </div>
 
         {/* Auth / Action Button (Desktop) */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           {status === "loading" ? (
             <div className="w-24 h-8 bg-[var(--surface-hover)] animate-pulse rounded-lg" />
           ) : session ? (
@@ -118,7 +118,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text)]"
+          className="lg:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text)]"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -127,7 +127,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-[var(--surface)] border-b border-[var(--border-light)] px-6 py-4 flex flex-col gap-4 shadow-2xl mt-2">
+        <div className="lg:hidden bg-[var(--surface)] border-b border-[var(--border-light)] px-6 py-4 flex flex-col gap-4 shadow-2xl mt-2">
           {navLinks.map((link) => (
             <Link
               key={link.name}
