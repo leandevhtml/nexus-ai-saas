@@ -11,13 +11,13 @@ const leadSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    // Rate Limiting
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const limiter = rateLimit(ip, 3, 60000); // Mais rigoroso para leads (3 por minuto)
+    // Rate Limiting (Proteção contra spam)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const limiter = rateLimit(ip, 15, 60000); // 15 por minuto é mais razoável
     
     if (!limiter.success) {
       return NextResponse.json(
-        { message: "Muitas solicitações. Aguarde um pouco." },
+        { message: "Muitas solicitações. Aguarde um pouco antes de tentar novamente." },
         { status: 429 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       email,
       nome,
       data_de_inscricao: new Date(),
-      origem_da_campanha: "Landing-page"
+      origem_da_campanha: "landing-page"
     });
 
     await newLead.save();

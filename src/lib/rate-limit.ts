@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const ipCache = new Map<string, { count: number; lastRequest: number }>();
+const ipCache = new Map<string, { count: number; startTime: number }>();
 
 /**
  * Rate Limiter simples baseado em memória para proteção de APIs.
@@ -13,13 +13,14 @@ export function rateLimit(ip: string, limit: number = 5, windowMs: number = 6000
   const entry = ipCache.get(ip);
 
   if (!entry) {
-    ipCache.set(ip, { count: 1, lastRequest: now });
+    ipCache.set(ip, { count: 1, startTime: now });
     return { success: true };
   }
 
-  if (now - entry.lastRequest > windowMs) {
+  // Reset se a janela de tempo passou desde o PRIMEIRO pedido
+  if (now - entry.startTime > windowMs) {
     entry.count = 1;
-    entry.lastRequest = now;
+    entry.startTime = now;
     return { success: true };
   }
 

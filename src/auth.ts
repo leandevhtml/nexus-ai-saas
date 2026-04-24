@@ -64,6 +64,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub;
         session.user.role = token.role as string;
         session.user.subscription = token.subscription as any;
+        // Ensure image is passed from token to session
+        session.user.image = token.picture as string;
       }
       return session;
     },
@@ -72,6 +74,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = (user as any).role;
         token.subscription = (user as any).subscription;
+        // Store image in the standard JWT 'picture' field
+        token.picture = user.image;
       }
       
       // Update session manually after checkout

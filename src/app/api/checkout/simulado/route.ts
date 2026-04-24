@@ -15,12 +15,12 @@ const checkoutSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting (DDoS e Brute Force Protection)
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const limiter = rateLimit(ip, 5, 60000); // 5 requisições por minuto
+    // 1. Rate Limiting (Proteção contra abusos)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const limiter = rateLimit(ip, 10, 60000); // 10 requisições por minuto
     
     if (!limiter.success) {
-      return NextResponse.json({ error: "Muitas tentativas. Aguarde um momento." }, { status: 429 });
+      return NextResponse.json({ error: "Muitas tentativas. Aguarde um momento antes de tentar novamente." }, { status: 429 });
     }
 
     // 2. Autenticação e Autorização Seguras
@@ -61,17 +61,30 @@ export async function POST(req: Request) {
     user.subscription.status = "active";
     await user.save();
 
-    // Cria o registro de pagamento
-    await Payment.create({
+    // 6. Atualiza ou cria o registro de pagamento como concluído
+    // Tentamos encontrar o registro pendente criado na abertura da página
+    const existingPendingPayment = await Payment.findOne({
       userId: user._id,
-      userName: user.name || "Desconhecido",
-      userEmail: user.email || "",
-      amount: plan.price,
-      currency: "BRL",
-      status: "completed",
       plan: plan.name,
-      stripeSessionId: `simulado_${Math.random().toString(36).substring(7)}`,
-    });
+      status: "pending"
+    }).sort({ createdAt: -1 });
+
+    if (existingPendingPayment) {
+      existingPendingPayment.status = "completed";
+      existingPendingPayment.stripeSessionId = `simulado_${Math.random().toString(36).substring(7)}`;
+      await existingPendingPayment.save();
+    } else {
+      await Payment.create({
+        userId: user._id,
+        userName: user.name || "Desconhecido",
+        userEmail: user.email || "",
+        amount: plan.price,
+        currency: "BRL",
+        status: "completed",
+        plan: plan.name,
+        stripeSessionId: `simulado_${Math.random().toString(36).substring(7)}`,
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Pagamento aprovado com sucesso!" });
   } catch (error: any) {

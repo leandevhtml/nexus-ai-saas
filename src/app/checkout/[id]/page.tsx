@@ -3,6 +3,7 @@ import Plan from "@/models/Plan";
 import CheckoutForm from "./CheckoutForm";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
+import Payment from "@/models/Payment";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,27 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
     period: plan.period,
     features: plan.features,
   };
+
+  // Criar ou atualizar registro de pagamento pendente para aparecer no Admin
+  // Isso permite que o administrador veja a intenção de compra em tempo real
+  await Payment.findOneAndUpdate(
+    { 
+      userId: session.user.id, 
+      status: "pending", 
+      plan: plan.name,
+      createdAt: { $gt: new Date(Date.now() - 1000 * 60 * 60) } // Verifica se já existe um nos últimos 60 min
+    },
+    {
+      userId: session.user.id,
+      userName: session.user.name || "Desconhecido",
+      userEmail: session.user.email || "",
+      amount: plan.price,
+      currency: "BRL",
+      status: "pending",
+      plan: plan.name,
+    },
+    { upsert: true, returnDocument: 'after' }
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] flex flex-col pt-24 pb-12">
