@@ -31,8 +31,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <img src="/logo.svg" alt="NexusAI Logo" className="w-8 h-8 group-hover:scale-105 transition-transform" />
-          <span className="font-bold text-xl tracking-tight text-[var(--text)]">NexusAI</span>
+          <img src="/logo.svg" alt="NexusAI Logo" className="w-7 h-7 md:w-8 md:h-8 group-hover:scale-105 transition-transform" />
+          <span className="font-bold text-lg md:text-xl tracking-tight text-[var(--text)]">NexusAI</span>
         </Link>
 
         {/* Desktop Links */}

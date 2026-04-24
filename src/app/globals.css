@@ -255,6 +255,12 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 640px) {
+  .feature-card, .glass, .testimonial-card {
+    padding: 20px !important;
+  }
+}
+
 .feature-card::before {
   content: '';
   position: absolute;
