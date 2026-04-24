@@ -224,8 +224,12 @@ export default function PlanManager({ initialPlans }: { initialPlans: any[] }) {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#11111E] w-full max-w-2xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          />
+          <div className="bg-white dark:bg-slate-950 rounded-[2rem] sm:rounded-[2.5rem] w-[95%] sm:max-w-3xl relative overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
             <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                 {editingPlan ? "Editar Plano" : "Novo Plano"}

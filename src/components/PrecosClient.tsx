@@ -51,11 +51,11 @@ export default function PrecosClient({ plans }: { plans: PlanData[] }) {
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
       {plans.map((plan, idx) => (
         <div 
           key={plan._id || idx} 
-          className={`glass rounded-3xl p-8 flex flex-col relative ${plan.popular ? 'border-[var(--primary-light)] shadow-[0_0_30px_rgba(37,99,235,0.15)] transform md:-translate-y-4' : 'border-[var(--border-light)]'}`}
+          className={`glass rounded-3xl p-6 sm:p-8 flex flex-col relative ${plan.popular ? 'border-[var(--primary-light)] shadow-[0_0_30px_rgba(37,99,235,0.15)] transform md:-translate-y-4' : 'border-[var(--border-light)]'}`}
         >
           {plan.popular && (
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--primary)] text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
