@@ -410,7 +410,7 @@ img, video, canvas, svg {
 }
 
 .animate-marquee {
-  animation: marquee 30s linear infinite;
+  animation: marquee 15s linear infinite;
 }
 
 /* ===== RESPONSIVE TYPOGRAPHY ===== */
