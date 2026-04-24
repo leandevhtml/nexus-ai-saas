@@ -35,17 +35,22 @@ export default function Navbar() {
     <>
       <nav 
         className={cn(
-          "fixed top-0 left-0 right-0 z-[100] transition-all duration-500 py-4",
-          isScrolled ? "bg-background/80 backdrop-blur-xl border-b border-border-light py-3" : "bg-transparent"
+          "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
+          isScrolled || isMobileMenuOpen 
+            ? "bg-white dark:bg-[#0A0A0F] border-b border-slate-200 dark:border-slate-800 py-3" 
+            : "bg-transparent py-4"
         )}
       >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+          {/* Logo - Estilo Admin */}
           <Link href="/" className="flex items-center gap-2 group relative z-[110]">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
               <img src="/logo.svg" alt="N" className="w-5 h-5 invert" />
             </div>
-            <span className="font-bold text-lg md:text-xl tracking-tight text-text">NexusAI</span>
+            <div className="flex flex-col">
+              <span className="font-black text-lg tracking-tighter dark:text-white uppercase leading-none">Nexus<span className="text-indigo-600">AI</span></span>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 hidden sm:block">Inteligência Local</span>
+            </div>
           </Link>
 
           {/* Desktop Links */}
@@ -102,80 +107,73 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay - Estilo Admin */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[105] bg-background/95 backdrop-blur-2xl lg:hidden flex flex-col p-8 pt-32"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[105] bg-white dark:bg-[#0A0A0F] lg:hidden flex flex-col p-6 pt-24"
           >
-            {/* Background shapes */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -z-10" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 blur-[100px] rounded-full -z-10" />
-
-            <nav className="flex flex-col gap-6">
+            <nav className="space-y-2">
               {navLinks.map((link, i) => (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
+                <Link
                   key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-4 px-6 py-4 rounded-2xl transition-all",
+                    pathname === link.href 
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" 
+                      : "text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-900"
+                  )}
                 >
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-3xl font-black text-text hover:text-primary transition-colors flex items-center justify-between group"
-                  >
-                    {link.name}
-                    <ArrowRight className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-primary" />
-                  </Link>
-                </motion.div>
+                  <span className="font-bold text-lg">{link.name}</span>
+                </Link>
               ))}
             </nav>
 
-            <div className="mt-auto space-y-6">
-              <hr className="border-border-light" />
+            <div className="mt-auto space-y-4">
+              <hr className="border-slate-100 dark:border-slate-800" />
               {session ? (
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4 p-4 glass rounded-2xl">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
                        <img src={session.user?.image || ""} alt="User" />
                     </div>
-                    <div>
-                      <p className="font-bold text-text">{session.user?.name}</p>
-                      <p className="text-sm text-text-dim">{session.user?.email}</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 dark:text-white truncate">{session.user?.name}</p>
+                      <p className="text-xs text-slate-500 truncate">{session.user?.email}</p>
                     </div>
                   </div>
                   <Link
                     href="/app"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="btn-primary w-full py-4 text-center"
+                    className="flex items-center justify-center w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20"
                   >
                     Acessar Plataforma
                   </Link>
                   <button
                     onClick={() => signOut()}
-                    className="text-red-400 font-bold text-center py-2"
+                    className="text-red-500 font-bold text-center py-2"
                   >
                     Sair da conta
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <Link 
                     href="/login" 
                     onClick={() => setIsMobileMenuOpen(false)} 
-                    className="text-center py-4 text-text-muted font-bold hover:text-text transition-colors"
+                    className="flex items-center justify-center w-full py-4 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold rounded-2xl"
                   >
-                    Já tenho uma conta (Login)
+                    Login
                   </Link>
                   <Link 
                     href="/#waitlist" 
                     onClick={() => setIsMobileMenuOpen(false)} 
-                    className="btn-primary w-full py-4 text-center text-lg shadow-2xl shadow-primary/40"
+                    className="flex items-center justify-center w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20"
                   >
                     Começar Grátis
                   </Link>
