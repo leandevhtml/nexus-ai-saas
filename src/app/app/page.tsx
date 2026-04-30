@@ -2,9 +2,13 @@ import { auth } from "@/auth";
 import { 
   Sparkles, Zap, Database, ArrowRight, 
   TrendingUp, Clock, Star, Shield,
-  ChevronRight, BookOpen, History
+  ChevronRight, BookOpen, History as HistoryIcon,
+  MessageSquare
 } from "lucide-react";
 import Link from "next/link";
+import dbConnect from "@/lib/mongodb";
+import History from "@/models/History";
+import mongoose from "mongoose";
 
 export default async function AppPage() {
   const session = await auth();
@@ -12,27 +16,57 @@ export default async function AppPage() {
   const planName = (session?.user as any)?.subscription?.plan || "Free";
   const isPro = planName !== "Free";
 
+  let totalGeractions = 0;
+  let todayGenerations = 0;
+  let recentActivity: any[] = [];
+  
+  if (session?.user?.id) {
+    try {
+      await dbConnect();
+      const userId = new mongoose.Types.ObjectId(session.user.id);
+      
+      // Get total generations
+      totalGeractions = await History.countDocuments({ userId });
+      
+      // Get today's generations
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      todayGenerations = await History.countDocuments({
+        userId,
+        createdAt: { $gte: startOfDay }
+      });
+      
+      // Get recent activity
+      recentActivity = await History.find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(3)
+        .lean();
+    } catch (e) {
+      console.error("Failed to fetch user stats", e);
+    }
+  }
+
   // Stats cards data
   const stats = [
     {
       label: "Gerações Hoje",
-      value: "0",
+      value: todayGenerations.toString(),
       icon: Sparkles,
       color: "indigo",
       gradient: "from-indigo-500 to-purple-600",
       bg: "bg-indigo-50 dark:bg-indigo-900/20",
       iconColor: "text-indigo-600 dark:text-indigo-400",
-      trend: "+0%",
+      trend: "atualizado agora",
     },
     {
       label: "Total de Uso",
-      value: "0",
+      value: totalGeractions.toString(),
       icon: TrendingUp,
       color: "emerald",
       gradient: "from-emerald-500 to-teal-600",
       bg: "bg-emerald-50 dark:bg-emerald-900/20",
       iconColor: "text-emerald-600 dark:text-emerald-400",
-      trend: "0 tokens",
+      trend: "gerações totais",
     },
     {
       label: "Modelos Treinados",
@@ -86,7 +120,7 @@ export default async function AppPage() {
     },
     {
       href: "/app/historico",
-      icon: History,
+      icon: HistoryIcon,
       title: "Histórico de Gerações",
       description: "Veja e reutilize todos os seus conteúdos gerados anteriormente.",
       color: "blue",
@@ -261,21 +295,53 @@ export default async function AppPage() {
         <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-3 md:mb-4">
           Atividade Recente
         </h2>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-            <Clock className="w-7 h-7 text-slate-400" />
+        {recentActivity.length > 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {recentActivity.map((activity) => (
+                <div key={activity._id.toString()} className="flex items-start gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex flex-shrink-0 items-center justify-center mt-0.5">
+                    <MessageSquare className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                        {activity.type || "Geração de Texto"}
+                      </p>
+                      <span className="text-xs text-slate-400 whitespace-nowrap">
+                        {new Date(activity.createdAt).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {activity.prompt}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-center">
+              <Link href="/app/historico" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+                Ver todo o histórico &rarr;
+              </Link>
+            </div>
           </div>
-          <p className="font-semibold text-slate-900 dark:text-white mb-1">
-            Nenhuma atividade ainda
-          </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 max-w-xs">
-            Suas gerações e ações aparecerão aqui. Comece usando uma das ferramentas acima!
-          </p>
-          <Link href="/app/ia" className="btn-primary py-2.5 px-5 text-sm">
-            <Sparkles className="w-4 h-4" />
-            Começar agora
-          </Link>
-        </div>
+        ) : (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 flex flex-col items-center justify-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+              <Clock className="w-7 h-7 text-slate-400" />
+            </div>
+            <p className="font-semibold text-slate-900 dark:text-white mb-1">
+              Nenhuma atividade ainda
+            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 max-w-xs">
+              Suas gerações e ações aparecerão aqui. Comece usando uma das ferramentas acima!
+            </p>
+            <Link href="/app/ia" className="btn-primary py-2.5 px-5 text-sm">
+              <Sparkles className="w-4 h-4" />
+              Começar agora
+            </Link>
+          </div>
+        )}
       </div>
 
     </div>
