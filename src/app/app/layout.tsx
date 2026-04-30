@@ -6,13 +6,12 @@ import {
   Sparkles, 
   History, 
   Settings, 
-  LogOut,
-  ChevronRight,
-  User,
+  Database,
   Globe,
-  Database
+  User,
 } from "lucide-react";
-import LogoutButton from "./LogoutButton"; // Componente client para logout
+import LogoutButton from "./LogoutButton";
+import BottomNav from "./BottomNav";
 
 export const metadata = {
   title: "Painel | NexusAI",
@@ -39,10 +38,11 @@ export default async function AppLayout({
   ];
 
   const planName = (session.user as any).subscription?.plan || "Free";
+  const isPro = planName !== "Free";
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] flex">
-      {/* Sidebar Desktop */}
+      {/* ===== SIDEBAR DESKTOP ===== */}
       <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hidden md:flex flex-col h-screen sticky top-0">
         <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
           <Link href="/" className="flex items-center gap-2 group">
@@ -96,23 +96,41 @@ export default async function AppLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-        {/* Header Mobile (Opcional, pode ser expandido depois) */}
-        <div className="md:hidden h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-4 sticky top-0 z-10">
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto">
+        {/* Header Mobile */}
+        <div className="md:hidden h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-4 sticky top-0 z-10 shadow-sm">
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.svg" alt="NexusAI Logo" className="w-8 h-8" />
+            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">NexusAI</span>
           </Link>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded">
-              {planName}
+            {/* Plan badge */}
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${
+              isPro 
+                ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400" 
+                : "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400"
+            }`}>
+              {isPro ? "⚡" : "🆓"} {planName}
             </span>
+            {/* Avatar */}
+            <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center border-2 border-indigo-200 dark:border-indigo-700 overflow-hidden">
+              {session.user.image ? (
+                <img src={session.user.image} alt={session.user.name || "Foto"} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-8">
+        {/* Page Content */}
+        <div className="flex-1 p-4 md:p-8 pb-20 md:pb-8">
           {children}
         </div>
+
+        {/* ===== BOTTOM NAV MOBILE ===== */}
+        <BottomNav />
       </main>
     </div>
   );
